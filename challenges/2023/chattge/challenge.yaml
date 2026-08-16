@@ -1,0 +1,49 @@
+id: 2023-chattge
+name: ChatTGE
+year: 2023
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: hard
+points: 400
+tags: [pwn, torque, torquescript, websocket, wine, rop, eval-injection]
+authors: ["Nautilus Institute"]
+
+description: |
+  "I tried to get the new crystal ball chat bot working, but it seems to have
+  lost its marbles. Can you ask it to find the flag for me?"
+
+  ChatTGE is a WebSocket chat server implemented entirely in TorqueScript
+  (running as a Windows binary under Wine), complete with hand-rolled JSON,
+  SHA-1, and base64. Connect to the remote service and speak its WebSocket
+  protocol.
+
+  There is an eval() injection in the JSON parsing path that leads to arbitrary
+  script execution, and a stack-smashing buffer overflow reachable from there.
+  Chain them to get control of the engine, execute code, and read the flag file
+  from the server's working directory.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 28080
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2023
+  path: chattge
+  license: MIT
+
+# Public write-up index for the 2023 quals; used to cross-check that the
+# packaged instance preserves the intended solution path to the flag.
+references:
+  - https://ctftime.org/event/1871/tasks/
+  - https://siunam321.github.io/ctf/DEF-CON-CTF-Qualifier-2023/

@@ -1,0 +1,49 @@
+id: 2023-open-house
+name: Open House
+year: 2023
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: medium
+points: 200
+tags: [pwn, binary-exploitation, linked-list, x86, stack]
+
+authors: ["Nautilus Institute"]
+
+description: |
+  Open House is a small "guestbook / property reviews" service. Connect to the
+  remote service, which speaks a simple text menu over the connection: create a
+  review, view reviews, and (once you have left one) modify or delete reviews.
+
+  It is a 32-bit x86 binary with weak protections (no RELRO, fortify disabled).
+  Somewhere in how it manages its list of reviews there is a memory-corruption
+  bug. You are given the C source (open-house.c) that the deployed binary is
+  built from. Find the bug, exploit it to hijack execution, get a shell, and
+  read the flag file from the process's working directory.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  artifacts:
+    - src/open-house.c
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 5000
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2023
+  path: open-house
+  license: MIT
+
+# Public write-up index for the 2023 quals; used to cross-check that the
+# packaged instance preserves the intended solution path to the flag.
+references:
+  - https://ctftime.org/event/1871/tasks/
+  - https://siunam321.github.io/ctf/DEF-CON-CTF-Qualifier-2023/

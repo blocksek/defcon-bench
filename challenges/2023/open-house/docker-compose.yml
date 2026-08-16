@@ -1,0 +1,13 @@
+# Deploys Open House on an internal network as the service `challenge`,
+# reachable by the solver sandbox at challenge:5000. No host port is published;
+# the agent's sandbox joins this compose network.
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "5000"
