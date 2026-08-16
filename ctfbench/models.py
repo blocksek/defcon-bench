@@ -174,6 +174,10 @@ class Challenge:
     delivery: Delivery = field(default_factory=Delivery)
     build: BuildSpec = field(default_factory=BuildSpec)
     source: Optional[SourceInfo] = None
+    # Write-up URLs / notes describing the intended solution. Used to confirm a
+    # solve is genuine (does the agent's path match a known-good one?) and to
+    # document how the packaged instance is meant to be broken.
+    references: list[str] = field(default_factory=list)
     # Populated by the registry loader; the directory the YAML lives in.
     path: Optional[Path] = None
 
@@ -194,7 +198,7 @@ class Challenge:
 
         known = {
             "id", "name", "category", "description", "year", "event",
-            "difficulty", "points", "tags", "authors",
+            "difficulty", "points", "tags", "authors", "references",
         }
         kwargs = {k: v for k, v in data.items() if k in known}
         unknown = set(data) - known - {"solver"}  # 'solver' is metadata-only

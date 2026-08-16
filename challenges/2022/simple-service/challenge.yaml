@@ -36,3 +36,8 @@ source:
   upstream: https://github.com/Nautilus-Institute/quals-2022
   path: simple-service
   license: MIT
+
+# A "mic check" tutorial challenge: answer the arithmetic prompt to get the
+# flag. Solvability is proven directly by the flow (no exploit needed).
+references:
+  - https://ctftime.org/event/1670/tasks/

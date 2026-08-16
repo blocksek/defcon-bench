@@ -40,3 +40,10 @@ source:
   upstream: https://github.com/Nautilus-Institute/quals-2023
   path: omgzip
   license: MIT
+
+# Public write-ups describing the intended solution (reverse the splay-tree
+# coder + RLE). Used to confirm a solve follows a known-good path. Our
+# solver/solve.py is an independent working reference.
+references:
+  - https://ctftime.org/event/1871/tasks/
+  - https://siunam321.github.io/ctf/DEF-CON-CTF-Qualifier-2023/
