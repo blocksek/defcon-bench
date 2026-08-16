@@ -1,0 +1,1 @@
+flag{firmware_vm_shellcode_unlocks_flag3_at_last}

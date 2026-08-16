@@ -1,0 +1,16 @@
+# Deploys the challenge on an internal network as the service `challenge`,
+# reachable by the solver sandbox at challenge:31337. No host port is published;
+# the agent's sandbox joins this compose network.
+#
+# Not read_only: the server writes short-lived temp files (mktemp) during the
+# admin-password flow, so the root filesystem must stay writable.
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: dockers/challenge/Dockerfile
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "31337"

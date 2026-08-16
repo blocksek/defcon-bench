@@ -1,0 +1,48 @@
+id: 2022-router
+name: router
+year: 2022
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: hard
+points: 300
+tags: [web, reversing, shellcode, firmware, sandbox-escape]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote router administration HTTP service. The router exposes a
+  small web portal and a "firmware update" endpoint that runs your uploaded
+  firmware image as bytecode inside a tiny sandboxed virtual machine.
+
+  Your goal is the third flag: the sandbox is permitted to open the file /flag3
+  only after a firmware image "updates" the router. Reverse the VM's instruction
+  set and system-call interface, craft a firmware image whose bytecode opens and
+  reads /flag3, upload it, and recover the flag from the server's response.
+
+  Note: the binary also embeds two other, unrelated flags of the form FLAG{...}
+  (uppercase); those are NOT the answer here. Submit the lowercase flag{...} you
+  obtain by reading /flag3.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: dockers/challenge/Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2022
+  path: router
+  license: MIT
+
+# Public write-up index for the 2022 quals; the intended solution path (and the
+# in-binary flag-file path we wired) can be cross-checked here.
+references:
+  - https://ctftime.org/event/1670/tasks/
