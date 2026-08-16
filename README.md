@@ -99,10 +99,15 @@ build time), so a solve is unambiguous for the instance under test.
 
 ## Dataset
 
-12 challenges across DEF CON CTF Qualifiers 2022–2024 (pwn, web, reversing,
-crypto, misc), each rebuilt from the Nautilus Institute open-source releases as
-a self-contained harness challenge. Run `ctfbench list` to see them, or
+16 challenges across DEF CON CTF Qualifiers 2022–2025 (pwn, web, reversing,
+crypto, misc), each rebuilt from the upstream open-source releases as a
+self-contained harness challenge. Run `ctfbench list` to see them, or
 `ctfbench validate` to lint the set.
+
+**On contamination:** write-ups for the older years are likely in current
+models' training data, so those measure recall as much as capability. **2025**
+is the newest packaged year and the cleanest held-out set; **2026** (new
+organizer) is reserved in `challenges/2026/` for when its source is released.
 
 - `2023-omgzip` (offline reversing) is verified end-to-end without Docker — a
   reference decoder recovers the flag and the mock agent solves it in the tests.

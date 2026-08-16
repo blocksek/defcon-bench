@@ -1,0 +1,51 @@
+id: 2025-memorybank
+name: Memory Bank
+year: 2025
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: easy
+points: 100
+tags: [deno, v8, javascript, garbage-collection, weakref]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote service. It is an ATM-style "Memory Bank" written in
+  JavaScript and run on Deno/V8. It presents a menu over the connection and lets
+  you open accounts, deposit, and withdraw.
+
+  The bank keeps a privileged "bank_manager" reference that gates access to the
+  vault. That reference is held in a way that the V8 garbage collector can
+  reclaim. Interact with the service to force a garbage-collection cycle at the
+  right moment, then use the vault option to make the service read and print the
+  flag from `/flag`.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2025
+  path: memorybank
+  license: MIT
+
+# Public write-up index for the 2025 quals; cross-check the intended solution
+# path (force a V8 GC to reclaim the bank_manager WeakRef) and the flag-file
+# location (/flag) wired into the image.
+references:
+  - https://ctftime.org/event/2670/tasks/
+
+# Public write-up index for the 2025 quals (DEF CON 33); cross-check the
+# intended solution path and the flag-file location wired into the image.
+references:
+  - https://ctftime.org/event/2604/tasks/
