@@ -73,6 +73,57 @@ def cmd_build(args) -> int:
     return 0
 
 
+def cmd_validate(args) -> int:
+    """Static lint over the dataset: structural + safety checks, no Docker."""
+    challenges = registry.discover(args.challenges_dir)
+    if not challenges:
+        print("no challenges found")
+        return 1
+    problems = 0
+    for c in challenges:
+        issues = _validate_challenge(c)
+        status = "ok" if not issues else f"{len(issues)} issue(s)"
+        print(f"{c.id:<24} {status}")
+        for msg in issues:
+            print(f"    - {msg}")
+            problems += 1
+    print(f"\n{len(challenges)} challenge(s), {problems} issue(s)")
+    return 0 if problems == 0 else 1
+
+
+def _validate_challenge(c: Challenge) -> list[str]:
+    issues: list[str] = []
+    assert c.path is not None
+    flag = c.flag.value
+
+    # Committed artifacts must not contain the plaintext flag.
+    for art in c.delivery.artifacts:
+        p = c.path / art
+        if p.exists() and flag.encode() in p.read_bytes():
+            issues.append(f"flag leaked in committed artifact {art}")
+
+    if c.is_service:
+        svc = c.delivery.service
+        compose = c.path / svc.compose
+        if not compose.exists():
+            issues.append(f"compose file missing: {svc.compose}")
+    else:
+        # Offline: artifacts must exist now, or be produced by a build step.
+        for art in c.delivery.artifacts:
+            built = c.path / c.build.output / art
+            if not (c.path / art).exists() and not built.exists():
+                if c.build.type == "none":
+                    issues.append(f"artifact missing and no build step: {art}")
+
+    if c.build.type == "docker" and c.build.dockerfile:
+        if not (c.path / c.build.dockerfile).exists():
+            issues.append(f"dockerfile missing: {c.build.dockerfile}")
+    if c.build.type == "script" and c.build.script:
+        if not (c.path / c.build.script).exists():
+            issues.append(f"build script missing: {c.build.script}")
+    return issues
+
+
 def cmd_run(args) -> int:
     challenges = registry.select(
         ids=args.challenge or None,
@@ -140,6 +191,9 @@ def build_parser() -> argparse.ArgumentParser:
     bp.add_argument("challenge")
     bp.add_argument("--force", action="store_true")
     bp.set_defaults(func=cmd_build)
+
+    vp = sub.add_parser("validate", help="static lint over the dataset")
+    vp.set_defaults(func=cmd_validate)
 
     rp = sub.add_parser("run", help="run an agent against challenges")
     rp.add_argument("challenge", nargs="*", help="challenge id(s); default all")
