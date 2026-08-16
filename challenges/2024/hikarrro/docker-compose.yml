@@ -1,0 +1,10 @@
+# Deploys hikarrro on the internal compose network as service `challenge`,
+# reachable by the solver sandbox at challenge:31337. No host port published.
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    expose:
+      - "31337"

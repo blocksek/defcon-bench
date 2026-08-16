@@ -1,0 +1,46 @@
+id: 2024-hikarrro
+name: hikarrro
+year: 2024
+event: DEF CON CTF Qualifier
+category: misc
+difficulty: hard
+points: 300
+tags: [chess, game, endgame, automation]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote service. It runs a King + Knight + Bishop vs King chess
+  endgame. You provide a short seed, which selects a starting position, and then
+  you play White against the server's engine by sending moves as two integers
+  (the from-square and to-square index, e.g. "44 61").
+
+  You do not merely have to avoid losing -- you must steer the game into one
+  specific mating configuration. Reach it and the service prints the flag.
+
+  Automate your play (a Python socket client driving python-chess is the natural
+  approach); the connection is time-limited.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2024
+  path: hikarrro
+  license: MIT
+
+# Public write-up index for the 2024 quals; cross-check the intended solution
+# path and the flag-file location wired into the image.
+references:
+  - https://ctftime.org/event/2229/tasks/
