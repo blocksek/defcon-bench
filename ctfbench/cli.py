@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Optional
@@ -31,6 +32,59 @@ def _make_provider(model: str):
 
         return OpenAIProvider(model=name), name
     raise SystemExit(f"unknown backend: {backend}")
+
+
+def _ctfd_password(user: str) -> str:
+    # Deterministic per-user password so re-runs can log the same user back in.
+    import hashlib
+
+    return "bench-" + hashlib.sha256(f"ctfbench:{user}".encode()).hexdigest()[:20]
+
+
+def _make_ctfd_scorer(args, model_label: str, challenges):
+    """Build a CTFdScorer bound to a per-model user, importing challenges first."""
+    from .ctfd import CTFdClient, ensure_user, import_challenges
+    from .scoring import CTFdScorer
+
+    token = args.ctfd_token or os.environ.get("CTFD_TOKEN")
+    if not args.ctfd_url or not token:
+        raise SystemExit("CTFd scoring needs --ctfd-url and --ctfd-token (or $CTFD_TOKEN)")
+
+    client = CTFdClient(args.ctfd_url, admin_token=token)
+    mapping = import_challenges(client, challenges)
+
+    password = _ctfd_password(model_label)
+    ensure_user(client, model_label, password)
+    session = client.login_user(model_label, password)
+
+    def resolve_id(ch):
+        return mapping.get(ch.id) or client.find_challenge_id(ch.name)
+
+    return CTFdScorer(session, resolve_id)
+
+
+def cmd_ctfd(args) -> int:
+    """Manage the CTFd scoreboard: import challenges or print the scoreboard."""
+    from .ctfd import CTFdClient, import_challenges
+
+    token = args.ctfd_token or os.environ.get("CTFD_TOKEN")
+    if not args.ctfd_url or not token:
+        raise SystemExit("needs --ctfd-url and --ctfd-token (or $CTFD_TOKEN)")
+    client = CTFdClient(args.ctfd_url, admin_token=token)
+
+    if args.ctfd_command == "import":
+        challenges = registry.discover(args.challenges_dir)
+        mapping = import_challenges(client, challenges)
+        for cid, ctfd_id in sorted(mapping.items()):
+            print(f"{cid:<24} -> CTFd #{ctfd_id}")
+        print(f"\nimported/matched {len(mapping)} challenge(s)")
+        return 0
+    if args.ctfd_command == "scoreboard":
+        board = client.scoreboard()
+        for row in board:
+            print(f"{row.get('pos','?'):>3}  {row.get('name','?'):<24} {row.get('score','?')}")
+        return 0
+    return 1
 
 
 def cmd_list(args) -> int:
@@ -144,13 +198,19 @@ def cmd_run(args) -> int:
     )
     config = AgentConfig(max_steps=args.max_steps, verbose=args.verbose)
 
+    scorer = None
+    if args.scoreboard == "ctfd":
+        scorer = _make_ctfd_scorer(args, label, challenges)
+        print(f"scoring via CTFd at {args.ctfd_url} as user '{label}'")
+
     results = []
     for c in challenges:
         print(f"==> {c.id} [{label}]")
-        res = runner.run(c, provider, model_label=label, config=config)
+        res = runner.run(c, provider, model_label=label, config=config, scorer=scorer)
         status = "SOLVED" if res.solved else "failed"
+        pts = f" +{res.points}" if res.points else ""
         extra = f" ({res.error})" if res.error else ""
-        print(f"    {status} in {res.steps} steps, {res.duration_s:.1f}s{extra}")
+        print(f"    {status}{pts} in {res.steps} steps, {res.duration_s:.1f}s{extra}")
         results.append(res)
 
     if args.out:
@@ -207,7 +267,19 @@ def build_parser() -> argparse.ArgumentParser:
     rp.add_argument("--solver-image", default="ctfbench/solver:latest")
     rp.add_argument("--out", default=None, help="write JSON+MD reports here")
     rp.add_argument("--verbose", action="store_true")
+    rp.add_argument("--scoreboard", choices=["local", "ctfd"], default="local",
+                    help="where flags are judged (default local exact-match)")
+    rp.add_argument("--ctfd-url", default=None, help="CTFd base URL (scoreboard=ctfd)")
+    rp.add_argument("--ctfd-token", default=None,
+                    help="CTFd admin access token (or set $CTFD_TOKEN)")
     rp.set_defaults(func=cmd_run)
+
+    cp = sub.add_parser("ctfd", help="manage the CTFd scoreboard")
+    cp.add_argument("ctfd_command", choices=["import", "scoreboard"])
+    cp.add_argument("--ctfd-url", default=None, help="CTFd base URL")
+    cp.add_argument("--ctfd-token", default=None,
+                    help="CTFd admin access token (or set $CTFD_TOKEN)")
+    cp.set_defaults(func=cmd_ctfd)
 
     return p
 

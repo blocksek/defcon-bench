@@ -7,7 +7,6 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from . import grading
 from .agent.base import Agent, AgentConfig, Provider
 from .build import ensure_built
 from .models import Challenge, RunResult
@@ -17,6 +16,7 @@ from .sandbox import (
     Sandbox,
     ServiceDeployment,
 )
+from .scoring import LocalScorer, Scorer
 
 
 def build_task_prompt(challenge: Challenge, *, host: Optional[str] = None,
@@ -66,9 +66,11 @@ class Runner:
         *,
         model_label: Optional[str] = None,
         config: Optional[AgentConfig] = None,
+        scorer: Optional["Scorer"] = None,
     ) -> RunResult:
         model_label = model_label or getattr(provider, "model", provider.name)
         config = config or AgentConfig(verbose=self.verbose)
+        scorer = scorer or LocalScorer()
         start = time.time()
         deployment: Optional[ServiceDeployment] = None
         sandbox: Optional[Sandbox] = None
@@ -106,22 +108,30 @@ class Runner:
             )
             outcome = agent.solve(prompt)
 
-            grade = grading.combine(
-                grading.grade_submission(challenge.flag, outcome.submitted_flag),
-                grading.grade_transcript(challenge.flag, outcome.accumulated_output),
-            )
+            # The agent submits a string via submit_flag; the harness forwards
+            # it to the active scorer (local exact-match, or a live CTFd). If the
+            # agent never called submit_flag but a format-matching candidate is
+            # visible in its output, submit that so a genuine find still scores.
+            submitted = outcome.submitted_flag
+            if not submitted:
+                candidates = challenge.flag.find_candidates(outcome.accumulated_output)
+                submitted = candidates[0] if candidates else None
+            score = scorer.submit(challenge, submitted)
 
             transcript_path = self._save_transcript(challenge, model_label, outcome.transcript)
 
             return RunResult(
                 challenge_id=challenge.id,
                 model=model_label,
-                solved=grade.solved,
-                submitted_flag=grade.matched_flag or outcome.submitted_flag,
+                solved=score.solved,
+                submitted_flag=submitted,
                 steps=outcome.steps,
                 duration_s=time.time() - start,
                 error=outcome.error,
                 transcript_path=str(transcript_path) if transcript_path else None,
+                points=score.points,
+                score_backend=score.backend,
+                score_status=score.status,
             )
         except Exception as exc:  # noqa: BLE001 - report, don't crash the batch
             return RunResult(

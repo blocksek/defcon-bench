@@ -295,6 +295,9 @@ class RunResult:
     duration_s: float = 0.0
     error: Optional[str] = None
     transcript_path: Optional[str] = None
+    points: int = 0
+    score_backend: str = "local"
+    score_status: Optional[str] = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -306,4 +309,7 @@ class RunResult:
             "duration_s": round(self.duration_s, 2),
             "error": self.error,
             "transcript_path": self.transcript_path,
+            "points": self.points,
+            "score_backend": self.score_backend,
+            "score_status": self.score_status,
         }

@@ -25,6 +25,7 @@ def summarize(results: list[RunResult]) -> dict:
             "solved": solved,
             "total": len(rs),
             "solve_rate": round(solved / len(rs), 3) if rs else 0.0,
+            "points": sum(r.points for r in rs),
         }
     return summary
 
@@ -35,10 +36,13 @@ def to_markdown(results: list[RunResult]) -> str:
 
     lines.append("## Scoreboard")
     lines.append("")
-    lines.append("| Model | Solved | Total | Solve rate |")
-    lines.append("|-------|-------:|------:|-----------:|")
-    for model, s in sorted(summary.items()):
-        lines.append(f"| {model} | {s['solved']} | {s['total']} | {s['solve_rate']:.1%} |")
+    lines.append("| Model | Solved | Total | Solve rate | Points |")
+    lines.append("|-------|-------:|------:|-----------:|-------:|")
+    for model, s in sorted(summary.items(), key=lambda kv: (-kv[1]["points"], kv[0])):
+        lines.append(
+            f"| {model} | {s['solved']} | {s['total']} | {s['solve_rate']:.1%} "
+            f"| {s['points']} |"
+        )
     lines.append("")
 
     lines.append("## Per-challenge")

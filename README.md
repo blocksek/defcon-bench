@@ -37,9 +37,12 @@ service.
 - **Sandbox** (`ctfbench/sandbox.py`): the agent's shell runs either inside a
   Docker container joined to the challenge's network (realistic) or as a local
   subprocess (`--no-docker`, handy for offline challenges and CI).
-- **Grading** (`ctfbench/grading.py`): a solve is an exact-match flag submission
-  (or the ground-truth flag observed verbatim in tool output). Format-shaped
-  guesses never score.
+- **Scoring** (`ctfbench/scoring.py`): the agent calls `submit_flag`; the harness
+  forwards the string to a pluggable `Scorer`. Default `local` is exact-match in
+  process; `ctfd` submits to a live [CTFd](https://ctfd.io/) scoreboard as the
+  model's user and takes CTFd's verdict as authoritative, so scores are visible
+  on a real scoreboard with models as competitors. See
+  [`docs/SCORING.md`](docs/SCORING.md). Format-shaped guesses never score.
 
 ## Quick start
 
@@ -65,6 +68,16 @@ Offline challenges can run without a Docker daemon:
 ```bash
 ctfbench run 2023-omgzip --model openai:gpt-4o --no-docker
 ```
+
+Score on a live CTFd scoreboard (models compete as users):
+
+```bash
+docker compose -f deploy/ctfd/docker-compose.yml up -d   # then set CTFD_URL/CTFD_TOKEN
+ctfbench ctfd import --ctfd-url "$CTFD_URL"
+ctfbench run --scoreboard ctfd --ctfd-url "$CTFD_URL" --model openai:gpt-4o --out runs/
+```
+
+See [`docs/SCORING.md`](docs/SCORING.md).
 
 ### The solver sandbox image
 
