@@ -1,0 +1,48 @@
+id: 2023-brinebid
+name: Brine Bid
+year: 2023
+event: DEF CON CTF Qualifier
+category: web
+difficulty: hard
+points: 300
+tags: [websocket, deno, deserialization, pickle, javascript]
+authors: ["Nautilus Institute"]
+
+description: |
+  Brine Bid is an online real-estate auction house that speaks over WebSockets.
+  Connect to the remote service and interact with it as a WebSocket client
+  (ws://<host>:<port>). You are given the server's JavaScript bundle,
+  main.bundle.js.
+
+  The wire protocol is driven by a hand-rolled reimplementation of Python's
+  pickle format. Reverse the bundle, understand the messaging/pickle layer, and
+  find the bug that lets you read a file you should not be able to. The flag
+  lives in a file on the server; recover it and submit it.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  artifacts:
+    - main.bundle.js
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 8080
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2023
+  path: brinebid
+  license: MIT
+
+# Public write-up index for the 2023 quals; used to cross-check that the
+# packaged instance preserves the intended solution path to the flag.
+references:
+  - https://ctftime.org/event/1871/tasks/
+  - https://siunam321.github.io/ctf/DEF-CON-CTF-Qualifier-2023/

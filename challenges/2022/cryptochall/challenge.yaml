@@ -1,0 +1,46 @@
+id: 2022-cryptochall
+name: Crypto Chall
+year: 2022
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: hard
+points: 300
+tags: [heap, cpp, shared_ptr, type-confusion, rsa, crypto]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote encryption service. It is a stripped C++ binary that
+  offers several encryption/decryption algorithms (a base64 codec, Caesar and
+  ROT variants, and RSA), all built on a custom big-integer class.
+
+  There is a use-after-free type confusion hidden in the way the RSA key setup
+  captures shared_ptr values by reference inside a C++ lambda. Reverse the
+  algorithms from the binary, abuse the freed chunks to control a vtable, and
+  reach the hidden "flag one-time-pad" cipher, which XORs your chosen plaintext
+  with the contents of the server's flag file. Recover the flag from the XOR
+  output.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: dockers/challenge/Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2022
+  path: cryptochall
+  license: MIT
+
+# Public write-up index for the 2022 quals; the intended solution path (and the
+# in-binary flag-file path we wired) can be cross-checked here.
+references:
+  - https://ctftime.org/event/1670/tasks/

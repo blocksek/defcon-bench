@@ -1,0 +1,16 @@
+# Deploys dotcom-airbag on the internal compose network as service `challenge`,
+# reachable by the solver sandbox at challenge:31337. No host port published.
+#
+# NOTE: no-new-privileges is deliberately NOT set -- the challenge relies on the
+# setuid `bailout` helper to read flag2. SYS_PTRACE is granted because `airbag`
+# ptraces its own child.
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    cap_add:
+      - SYS_PTRACE
+    expose:
+      - "31337"

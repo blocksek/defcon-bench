@@ -1,0 +1,45 @@
+id: 2024-dotcom-airbag
+name: dotcom-airbag
+year: 2024
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: hard
+points: 400
+tags: [pwn, elf, gsym, ptrace, seccomp, setuid]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote service. It is a "crash reporting" system: a sandboxed
+  client program (`dotcom_market`) runs under a parent "airbag" process that
+  ptraces it and, on a crash, parses an LLVM GSYM debug section to symbolicate
+  the fault. That GSYM parser is where the bug lives.
+
+  This is a two-stage challenge. The first stage leaks an intermediate value,
+  but the flag that scores is the second one: escalate far enough to invoke the
+  privileged `bailout` helper, which reads the protected file
+  `/treasury/flag2.txt`. Recover that flag.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2024
+  path: dotcom-airbag
+  license: MIT
+
+# Public write-up index for the 2024 quals; cross-check the two-stage exploit
+# path (graded on flag2 read via the setuid bailout helper).
+references:
+  - https://ctftime.org/event/2229/tasks/

@@ -1,0 +1,12 @@
+# Deploys ChatTGE on an internal network as the service `challenge`, reachable
+# by the solver sandbox at challenge:28080. No host port is published; the
+# agent's sandbox joins this compose network. The service is a WebSocket-capable
+# chat server (connect to challenge:28080).
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    expose:
+      - "28080"

@@ -1,0 +1,54 @@
+id: 2025-callmerust
+name: Call Me Rust
+year: 2025
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: hard
+points: 350
+tags: [rust, sandbox-escape, ptrace, setuid, cpp]
+authors: ["Nautilus Institute", "anton00b", "George Androutsopoulos"]
+
+description: |
+  Connect to the remote service. It is a Rust "code runner": you send Rust source
+  (terminated by five consecutive newlines) and the service compiles and runs it
+  under a supervising setuid loader.
+
+  The player-supplied crate is compiled with `#![forbid(unsafe_code)]` and a
+  `panic!`-blocking macro, and runs under a ptrace supervisor with tight resource
+  limits. The flag is never handed to your program directly: the setuid loader
+  reads it as a privileged user and only writes it into your process's memory
+  when your program follows a very specific, intended path. Reverse the provided
+  library logic, craft a Rust program that drives the loader down that path, and
+  recover the flag. The flag lives in `/home/privuser/flag`, readable only by the
+  privileged user.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2025
+  path: callmerust
+  license: MIT
+
+# Public write-up index for the 2025 quals; cross-check the intended solution
+# path (drive the ptrace loader to inject the flag) and the flag-file location
+# (/home/privuser/flag, privuser-only) wired into the image.
+references:
+  - https://ctftime.org/event/2670/tasks/
+
+# Public write-up index for the 2025 quals (DEF CON 33); cross-check the
+# intended solution path and the flag-file location wired into the image.
+references:
+  - https://ctftime.org/event/2604/tasks/

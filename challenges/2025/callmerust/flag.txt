@@ -1,0 +1,1 @@
+flag{setuid_ptrace_loader_injects_our_flag}

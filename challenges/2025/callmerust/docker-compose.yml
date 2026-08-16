@@ -1,0 +1,13 @@
+# Deploys callmerust on the internal compose network as service `challenge`,
+# reachable by the solver sandbox at challenge:31337. No host port published.
+# Note: the setuid loader uses ptrace on its child, so the container needs the
+# default (non-restricted) seccomp/ptrace behavior; do not add no-new-privileges
+# here (it would break the setuid loader).
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    expose:
+      - "31337"

@@ -1,0 +1,1 @@
+flag{ten_of_spades_lcg_is_predictable}

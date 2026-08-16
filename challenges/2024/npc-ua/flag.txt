@@ -1,0 +1,1 @@
+flag{never_deserialize_an_npc_you_met_on_the_wire}

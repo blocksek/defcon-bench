@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+
+# Reports & run outputs
+runs/
+
+# Generated challenge build outputs only.
+# `ctfbench build` emits a script challenge's artifacts into <challenge>/dist/
+# (challenge-root level). Vendored source that happens to live under src/dist,
+# bin/, or src/build/ is NOT ignored and must be committed.
+/challenges/*/*/dist/

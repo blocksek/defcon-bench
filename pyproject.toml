@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ctfbench"
+version = "0.1.0"
+description = "An eval harness for measuring how well LLM agents solve CTF challenges, seeded with the DEF CON CTF Qualifier archives."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "defcon-bench" }]
+dependencies = [
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.30"]
+ctfd = ["requests>=2.28"]
+dev = ["pytest>=7.4", "PyYAML>=6.0"]
+
+[project.scripts]
+ctfbench = "ctfbench.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ctfbench*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["."]

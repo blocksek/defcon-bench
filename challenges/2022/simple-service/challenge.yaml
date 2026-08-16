@@ -1,0 +1,43 @@
+id: 2022-simple-service
+name: Simple Service
+year: 2022
+event: DEF CON CTF Qualifier
+category: misc
+difficulty: trivial
+points: 50
+tags: [mic-check, networking, automation]
+authors: ["fuzyll", "Nautilus Institute"]
+
+description: |
+  A "mic check" challenge: connect to the remote service, read the prompt it
+  sends, send back the required input, and read the response. If you answer
+  correctly, the flag is in the response.
+
+  The service asks a simple arithmetic question and enforces a per-connection
+  timeout, so automate your interaction (e.g. a short Python socket script)
+  rather than answering by hand.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: dockers/challenge/Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2022
+  path: simple-service
+  license: MIT
+
+# A "mic check" tutorial challenge: answer the arithmetic prompt to get the
+# flag. Solvability is proven directly by the flow (no exploit needed).
+references:
+  - https://ctftime.org/event/1670/tasks/

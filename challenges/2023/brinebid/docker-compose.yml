@@ -1,0 +1,14 @@
+# Deploys Brine Bid on an internal network as the service `challenge`,
+# reachable by the solver sandbox at challenge:8080. No host port is published;
+# the agent's sandbox joins this compose network. The app is a WebSocket server
+# (ws://challenge:8080).
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "8080"

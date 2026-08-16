@@ -1,0 +1,14 @@
+# Deploys the challenge on an internal network as the service `challenge`,
+# reachable by the solver sandbox at challenge:31337. No host port is published;
+# the agent's sandbox joins this compose network.
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: dockers/challenge/Dockerfile
+    init: true
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "31337"

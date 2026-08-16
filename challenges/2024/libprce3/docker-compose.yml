@@ -1,0 +1,10 @@
+# Deploys libprce3 on the internal compose network as service `challenge`,
+# reachable by the solver sandbox at challenge:8080 over HTTP.
+services:
+  challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    expose:
+      - "8080"

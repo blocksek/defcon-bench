@@ -1,0 +1,45 @@
+id: 2024-libprce3
+name: libprce3
+year: 2024
+event: DEF CON CTF Qualifier
+category: web
+difficulty: hard
+points: 300
+tags: [nginx, pcre, regex, rce, supply-chain]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote web service (plain HTTP). It is a stock nginx build,
+  except it links against a subtly modified build of the libpcre3 regular
+  expression library -- the same library nginx uses to evaluate its
+  `location ~ ...` regex rules.
+
+  Find the flaw introduced into the regex engine, craft a request that triggers
+  it through nginx's location matching, and turn that into command execution on
+  the server. The flag is in the file `/flag`.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 8080
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2024
+  path: libprce3
+  license: MIT
+
+# Public write-ups (incl. a challenge-specific one) for cross-checking the
+# intended RCE path that reads /flag.
+references:
+  - https://ctftime.org/event/2229/tasks/
+  - https://ctftime.org/writeup/39151

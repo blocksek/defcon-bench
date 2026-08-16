@@ -1,0 +1,49 @@
+id: 2025-tenspades
+name: Ten of Spades
+year: 2025
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: medium
+points: 200
+tags: [rng, lcg, prng-prediction, cpp]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote service. It implements a random number generator and a
+  card shuffle. The service gives you a challenge seed and asks you to predict
+  the exact shuffled-deck sequence its own RNG produces from that seed.
+
+  Recover the RNG algorithm (an LCG-style generator) from the given seed,
+  reproduce the shuffled sequence, and send it back. If your sequence matches the
+  service's deck, it rewards you with the flag (read from `/flag`).
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2025
+  path: tenspades
+  license: MIT
+
+# Public write-up index for the 2025 quals; cross-check the intended solution
+# path (predict the LCG/shuffle sequence) and the flag-file location
+# (FLAG_FILE default /flag) wired into the image.
+references:
+  - https://ctftime.org/event/2670/tasks/
+
+# Public write-up index for the 2025 quals (DEF CON 33); cross-check the
+# intended solution path and the flag-file location wired into the image.
+references:
+  - https://ctftime.org/event/2604/tasks/

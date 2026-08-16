@@ -1,0 +1,46 @@
+id: 2022-hash-it
+name: hash-it-0
+year: 2022
+event: DEF CON CTF Qualifier
+category: pwn
+difficulty: medium
+points: 150
+tags: [shellcode, hashing, reversing, preimage]
+authors: ["Nautilus Institute"]
+
+description: |
+  Connect to the remote service. It reads a 4-byte big-endian length followed by
+  that many bytes from you, then transforms your buffer: for each pair of input
+  bytes it takes the first byte of a hash (cycling through MD5, SHA1, SHA256,
+  SHA512) of that pair, packing the results into a buffer half the length. That
+  resulting buffer is mapped executable and called.
+
+  In other words, every byte of shellcode you want to run must be produced as the
+  first hash byte of some two-byte preimage. Find preimages for the bytes of a
+  small shellcode payload that opens and reads the flag file at /flag and writes
+  it back to you, send the crafted input, and recover the flag.
+
+flag:
+  format: 'flag\{[^}]*\}'
+  value_file: flag.txt
+
+delivery:
+  type: service
+  service:
+    compose: docker-compose.yml
+    service: challenge
+    port: 31337
+
+build:
+  type: docker
+  dockerfile: dockers/challenge/Dockerfile
+
+source:
+  upstream: https://github.com/Nautilus-Institute/quals-2022
+  path: hash-it
+  license: MIT
+
+# Public write-up index for the 2022 quals; the intended solution path (and the
+# in-binary flag-file path we wired) can be cross-checked here.
+references:
+  - https://ctftime.org/event/1670/tasks/
