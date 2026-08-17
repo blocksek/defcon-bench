@@ -1,0 +1,23 @@
+# Agent image — arm64-native variant with pwn debug tooling. Same intent as
+# agent/Dockerfile (generic tooling ONLY: no solvers, no flags, no Docker socket, no
+# host mounts, no internet — the bench network is --internal), but arm64-native so the
+# agent can debug the amd64 (qemu-user-emulated) pwn services via the qemu gdbstub
+# pattern (qemu-x86_64 -g <port> + gdb-multiarch). On an amd64-emulated agent image,
+# gdb cannot launch the doubly-nested emulated target (observed exit 127) — this is the
+# fix. Bonus: chromium runs arm64-native (no "hardware lacks sse3" issue).
+# Extra tools vs the amd64 image: qemu-user, gdb-multiarch, nasm, binutils, file
+# (nasm/ld are the mapllvm compile path; qemu/gdb for stork/mapllvm binary debugging).
+FROM python:3.11.15-slim-trixie
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PUPPETEER_SKIP_DOWNLOAD=1
+RUN --mount=type=tmpfs,target=/var/cache/apt/archives \
+    apt-get update && apt-get install -y --no-install-recommends \
+      curl netcat-openbsd jq socat chromium nodejs npm git ca-certificates \
+      qemu-user gdb-multiarch nasm binutils binutils-x86-64-linux-gnu file \
+    && rm -rf /var/lib/apt/lists/*
+# NOTE: angr dropped on arm64 (no reliable aarch64 wheels); z3/wasmtime/pwntools/
+# capstone/requests all have aarch64 support. Add angr back if a wheel appears.
+RUN pip install --no-cache-dir pwntools z3-solver capstone requests wasmtime==44.0.0
+RUN npm install -g puppeteer-core@23 >/dev/null 2>&1
+ENV CHROME_BIN=/usr/bin/chromium
+WORKDIR /workspace
+CMD ["sleep", "infinity"]

@@ -1,0 +1,13 @@
+# Handouts are large/binary — fetched by fetch_handouts.sh, never committed
+challenges/*/handout/
+challenges/*/*.tar.gz
+challenges/*/*.tar
+# Eval outputs
+results/
+# Misc
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+status.json
+FLAG.txt

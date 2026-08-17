@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>2bird2can</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --ink: #3a241a;
+        --ink-soft: #5c3b28;
+        --parchment: #e9d6a8;
+        --parchment-dark: #c9b07a;
+        --parchment-shadow: #8a6a3c;
+        --accent: #8b2a1a;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        color: var(--ink);
+        font-family: 'IM Fell English', 'Garamond', Georgia, serif;
+      }
+
+      body {
+        background-color: #d9bf82;
+        background-image:
+          radial-gradient(circle at 20% 15%, rgba(255, 240, 200, 0.55), transparent 55%),
+          radial-gradient(circle at 85% 80%, rgba(120, 75, 30, 0.35), transparent 60%),
+          radial-gradient(circle at 50% 50%, rgba(255, 245, 215, 0.25), transparent 70%),
+          repeating-linear-gradient(45deg, rgba(110, 70, 25, 0.05) 0 2px, transparent 2px 6px),
+          repeating-linear-gradient(-45deg, rgba(110, 70, 25, 0.04) 0 2px, transparent 2px 7px);
+        text-align: center;
+        padding: 40px 20px 80px;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        left: 0;
+        right: 0;
+        height: 60px;
+        pointer-events: none;
+        z-index: 0;
+      }
+      body::before {
+        top: 0;
+        background: linear-gradient(to bottom, rgba(90, 55, 20, 0.55), transparent);
+      }
+      body::after {
+        bottom: 0;
+        background: linear-gradient(to top, rgba(90, 55, 20, 0.55), transparent);
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+
+      .title-card {
+        margin-bottom: 32px;
+      }
+
+      .title-card h1 {
+        font-family: 'Pirata One', 'IM Fell English SC', serif;
+        font-size: 96px;
+        line-height: 1;
+        margin: 0;
+        color: var(--ink);
+        letter-spacing: 4px;
+        text-shadow:
+          1px 1px 0 rgba(255, 240, 200, 0.5),
+          3px 3px 0 rgba(60, 30, 10, 0.35),
+          0 0 20px rgba(255, 220, 160, 0.3);
+      }
+
+      .title-card .subtitle {
+        font-family: 'IM Fell English', serif;
+        font-style: italic;
+        font-size: 22px;
+        color: var(--ink-soft);
+        margin-top: 6px;
+        letter-spacing: 2px;
+      }
+
+      .title-card .subtitle::before,
+      .title-card .subtitle::after {
+        content: " ~ ";
+        color: var(--accent);
+      }
+
+      .section-label {
+        font-family: 'Pirata One', 'IM Fell English SC', serif;
+        font-size: 32px;
+        color: var(--ink);
+        margin: 32px 0 16px;
+        letter-spacing: 3px;
+      }
+
+      .game-frame {
+        position: relative;
+        display: inline-block;
+        padding: 20px;
+        background:
+          radial-gradient(circle at 30% 20%, rgba(255, 240, 200, 0.5), transparent 60%),
+          linear-gradient(135deg, var(--parchment), var(--parchment-dark));
+        border: 6px double var(--ink);
+        outline: 2px solid var(--ink);
+        outline-offset: 8px;
+        box-shadow:
+          inset 0 0 40px rgba(90, 55, 20, 0.35),
+          0 12px 28px rgba(0, 0, 0, 0.45);
+      }
+
+      #unity-canvas {
+        display: block;
+        width: 960px;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .map-frame {
+        position: relative;
+        display: inline-block;
+        padding: 28px;
+        background:
+          radial-gradient(circle at 70% 30%, rgba(255, 245, 210, 0.55), transparent 55%),
+          radial-gradient(circle at 20% 80%, rgba(120, 75, 30, 0.25), transparent 60%),
+          linear-gradient(160deg, var(--parchment), var(--parchment-dark));
+        border: 6px double var(--ink);
+        outline: 2px solid var(--ink);
+        outline-offset: 10px;
+        box-shadow:
+          inset 0 0 60px rgba(90, 55, 20, 0.45),
+          0 12px 28px rgba(0, 0, 0, 0.45);
+      }
+
+      .map-frame #map-image {
+        display: block;
+        margin: 0 auto;
+        max-width: 400px;
+        height: auto;
+        border: 1px solid var(--ink-soft);
+        box-shadow: inset 0 0 20px rgba(60, 30, 10, 0.35);
+      }
+
+      .map-caption {
+        font-family: 'IM Fell English', serif;
+        font-style: italic;
+        font-size: 18px;
+        color: var(--ink-soft);
+        margin-top: 16px;
+        letter-spacing: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="title-card">
+        <h1>2bird2can</h1>
+      </header>
+
+      <div class="game-frame">
+        <canvas id="unity-canvas" width=200 height=130 tabindex="-1" style="background: #231F20"></canvas>
+      </div>
+
+      <div class="section-label">Treasure Map</div>
+      <div class="map-frame">
+        <img id="map-image" alt="map">
+      </div>
+    </div>
+
+    <script src="Build/webgl-build.loader.js"></script>
+    <script>
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        arguments: ["-default_url", "DEFAULT_SERVER_URL", "-tls_cn", "TLS_SERVER_CN"],
+        dataUrl: "Build/webgl-build.data.gz",
+        frameworkUrl: "Build/webgl-build.framework.js.gz",
+        codeUrl: "Build/webgl-build.wasm.gz",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "unity-2bird2can",
+        productVersion: "1.0",
+      }).then(function (unityInstance) { window.unityInstance = unityInstance; window.__unityReady = true;
+      }).catch(function (message) {
+        alert(message);
+      });
+    </script>
+    <script>
+      document.querySelector("#map-image").src = "MAP_HOST/map";
+    </script>
+  </body>
+</html>
