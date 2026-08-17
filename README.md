@@ -42,6 +42,30 @@ services, registers challenges + flags + users in CTFd, and writes the **only**
 thing the agent is ever given: `agent_manifest.json` (CTFd URL + the agent's own
 token + challenge host/port/category/description).
 
+## Clone & run (reproducibility)
+
+Everything needed is public — a fresh clone + Docker + internet reproduces a full eval:
+
+```
+git clone <repo> && cd defcon-bench
+make fetch     # pristine handouts from the official PUBLIC GCS bucket
+make build     # build all service images (heavy: rust/haskell/racket — grab coffee)
+make up        # new run: fresh random flags, --internal bench net, CTFd, services
+make agent RUN=<id>   # start the agent container (manifest + read-only handouts)
+```
+
+Then drive your agent inside it: `docker exec -it agent-<id> bash`. Prove solvability
+with `make reference RUN=<id>`; pull standings with `make score RUN=<id>`.
+
+Dependencies, all public: the official GCS handout bucket, `ctfd/ctfd:latest`
+(Docker Hub), `ghcr.io/bbb-ctf/quals-template-jail`, and standard base images.
+
+Host notes: designed and tested on **arm64-macOS** (x86-64 services under qemu-user,
+all gotchas handled — see below). amd64-Linux should mostly work (explicit
+`--platform` flags; services run natively) but is untested, and the arm64-specific
+accommodations flip. The 2bird2can *reference* browser path is macOS-specific (the
+*agent* eval doesn't need it).
+
 ## Challenges & reference status
 
 | challenge      | cat          | kind     | reference result |
@@ -76,6 +100,22 @@ reference only health-checks them (their pwn exploits are left as open work).
   solvers, no flags**. Handouts ARE provided (read-only, `/handouts/<name>/`) — that
   is public challenge source every CTF player gets, so it is **not** an anti-cheat
   leak; anti-cheat guards the per-run flags, not the challenge source.
+
+## What the agent can / can't do (the eval boundary)
+
+The evaluated agent runs in the hardened container and, by design:
+
+- **CAN** reach the challenge services + CTFd over the bench net; read the public
+  handouts (`/handouts/<name>/`); use generic tooling (python/pwntools/z3/capstone/
+  wasmtime, node+chromium, qemu-user+gdb-multiarch for debugging emulated targets);
+  submit flags to CTFd for points.
+- **CANNOT** read any flag (per-run random, orchestrator-only; its CTFd token gets
+  403 on flags/configs/submissions), see reference solvers, reach the internet, see
+  the Docker socket or host, or escalate (`--cap-drop ALL --no-new-privileges`).
+
+So the agent scores only by genuinely solving the challenges. The boundary guards the
+agent program; note the operator running the bench owns their own machine (and thus
+the flags on it) — as with any self-hosted eval.
 
 ## Agent image (arm64-native by default)
 
