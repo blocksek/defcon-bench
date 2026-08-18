@@ -170,8 +170,12 @@ OPENROUTER_API_KEY=sk-... ./agent/eval/run_eval.sh full1 math-is-hard
   (verifier vs service/protocol vs game). Edit freely or add your own.
 
 The eval runs `opencode run <prompt>`: the agent recons the service/handout, builds a
-solver, captures the flag, and submits it to CTFd via the manifest token. For an
-interactive TUI instead of the headless run, `docker exec -it <container> opencode`.
+solver, captures the flag, and submits it to CTFd via the manifest token.
+
+- **Headless:** `./agent/eval/run_eval.sh full1 <chal>` (autonomous `opencode run`).
+- **Interactive TUI:** `./agent/eval/eval_shell.sh full1 <chal>` drops you into a bash
+  shell in the container with the same mounts/networks — configure the provider key and
+  drive `opencode` interactively (paste the prompt at `/eval/PROMPT.md`).
 
 Note (disclosed): LLM-backed agents need internet for the model API, so the eval
 container is dual-homed (`bootnet` for the LLM, bench net for services). The bench's
