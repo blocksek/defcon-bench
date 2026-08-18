@@ -1,0 +1,14 @@
+# opencode eval agent — runs an LLM agent (opencode) against the bench eval.
+# arm64-native (host is arm64). Generic tooling only; the challenge material is
+# mounted at runtime (/handouts/<name>), and opencode traces go to /winner (host dir).
+FROM python:3.11.15-slim-trixie
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+RUN --mount=type=tmpfs,target=/var/cache/apt/archives \
+    apt-get update && apt-get install -y --no-install-recommends \
+      curl ca-certificates nodejs npm git jq netcat-openbsd file xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+# opencode CLI — current release via npm (the GitHub .deb releases are stale)
+RUN npm install -g opencode-ai && npm cache clean --force
+# WASM / analysis tooling for the agent
+RUN pip install --no-cache-dir wasmtime==44.0.0 requests
+WORKDIR /workspace

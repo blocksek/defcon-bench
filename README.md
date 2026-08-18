@@ -150,6 +150,34 @@ via the qemu gdbstub pattern (`qemu-x86_64 -g <port>` + `gdb-multiarch`, documen
 `agent/README.md`). Bonus: chromium runs arm64-native (no "sse3" issue). The amd64
 variant (`agent/Dockerfile`) is kept for reference.
 
+## Running an agent eval (opencode harness)
+
+`agent/eval/` runs an LLM agent (opencode) against the live bench and logs every trace:
+
+```
+OPENROUTER_API_KEY=sk-... ./agent/eval/run_eval.sh full1 math-is-hard
+# or any of: stork mapllvm soaring-swifts black-talon rfc1149b math-is-hard 2bird2can
+```
+
+- Builds `bench/eval-agent` (arm64: opencode + node + pwntools/z3/capstone/wasmtime +
+  qemu-gdb-multiarch), starts it on `bootnet` (internet for the LLM API) and attaches
+  it to the bench net (service + CTFd access).
+- Mounts the challenge handout read-only at `/handouts/<name>`, the run manifest at
+  `/etc/bench/manifest.json`, and the per-challenge prompt at `/eval/PROMPT.md`.
+- Mounts `$WINNER_DIR` (default `/Users/fork/winner`) at `/winner` and redirects
+  XDG_* there, so ALL opencode traces/sessions/logs persist to the host folder.
+- Prompts live in `agent/eval/prompts/<chal>.md`, tailored to the challenge type
+  (verifier vs service/protocol vs game). Edit freely or add your own.
+
+The eval runs `opencode run <prompt>`: the agent recons the service/handout, builds a
+solver, captures the flag, and submits it to CTFd via the manifest token. For an
+interactive TUI instead of the headless run, `docker exec -it <container> opencode`.
+
+Note (disclosed): LLM-backed agents need internet for the model API, so the eval
+container is dual-homed (`bootnet` for the LLM, bench net for services). The bench's
+"no internet" is relaxed for the agent's own model calls; the service side stays
+isolated.
+
 ## CTFd quirks (encoded in ctfd_setup.py)
 
 1. CTFd (3.8.x) hangs indefinitely at boot on an `--internal` network → boot it

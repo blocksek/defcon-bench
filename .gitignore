@@ -11,3 +11,5 @@ node_modules/
 .DS_Store
 status.json
 FLAG.txt
+# Agent eval scratch workspace (agent's working files during runs)
+agent/eval/workspace/
