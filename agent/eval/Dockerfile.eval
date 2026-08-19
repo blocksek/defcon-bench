@@ -5,10 +5,11 @@ FROM python:3.11.15-slim-trixie
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN --mount=type=tmpfs,target=/var/cache/apt/archives \
     apt-get update && apt-get install -y --no-install-recommends \
-      curl ca-certificates nodejs npm git jq netcat-openbsd file xz-utils \
+      curl ca-certificates nodejs npm git jq netcat-openbsd file xz-utils chromium \
     && rm -rf /var/lib/apt/lists/*
 # opencode CLI — current release via npm (the GitHub .deb releases are stale)
-RUN npm install -g opencode-ai && npm cache clean --force
+RUN npm install -g opencode-ai puppeteer-core@23 && npm cache clean --force
 # WASM / analysis tooling for the agent
 RUN pip install --no-cache-dir wasmtime==44.0.0 requests
+ENV CHROME_BIN=/usr/bin/chromium PUPPETEER_SKIP_DOWNLOAD=1 NODE_PATH=/usr/local/lib/node_modules
 WORKDIR /workspace
